@@ -1,6 +1,15 @@
-# SwiftLink - URL Shortener API
+# SwiftLink - URL Shortener
 
-A fast and simple URL shortener API built with Python and FastAPI.
+A fast and simple URL shortener with a dark-themed web UI, built with Python and FastAPI.
+
+## Features
+
+- Shorten long URLs to 6-character codes
+- Click tracking with live stats polling (every 5 seconds)
+- Lookup existing short URLs to view click stats
+- Copy to clipboard support
+- Dark-themed, responsive single-page frontend
+- RESTful API with interactive docs
 
 ## CI/CD Pipeline
 
@@ -36,7 +45,7 @@ cp .env.example .env
 uvicorn app.main:app --reload
 ```
 
-The API will be available at `http://localhost:8000`.
+The app will be available at `http://localhost:8000`.
 
 ### Run tests
 
@@ -50,47 +59,41 @@ pytest -v
 ruff check .
 ```
 
-## API Documentation
+## API Endpoints
 
 Interactive docs available at `http://localhost:8000/docs` when the server is running.
 
-### Endpoints
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/` | Web UI |
+| `GET` | `/health` | Health check |
+| `GET` | `/info` | Project info (name, version, description) |
+| `POST` | `/shorten` | Shorten a URL |
+| `GET` | `/stats/{code}` | Get click stats for a short link |
+| `GET` | `/{code}` | Redirect to original URL (307) |
 
-#### Health Check
-```bash
-curl http://localhost:8000/health
-# {"status":"ok"}
-```
+### Examples
 
-#### Shorten a URL
 ```bash
+# Shorten a URL
 curl -X POST http://localhost:8000/shorten \
   -H "Content-Type: application/json" \
   -d '{"url": "https://example.com/very/long/path"}'
-# {"short_code":"aB3xYz","short_url":"http://localhost:8000/aB3xYz","original_url":"https://example.com/very/long/path"}
-```
 
-#### Redirect
-```bash
-curl -L http://localhost:8000/aB3xYz
-# Redirects (307) to the original URL
-```
-
-#### Get Stats
-```bash
+# Get stats
 curl http://localhost:8000/stats/aB3xYz
-# {"short_code":"aB3xYz","original_url":"https://example.com/very/long/path","click_count":1,"created_at":"2025-01-01T00:00:00"}
+
+# Redirect
+curl -L http://localhost:8000/aB3xYz
 ```
 
 ## Docker
 
-### Build and run
 ```bash
+# Build and run with compose
 docker compose up --build
-```
 
-### Build only
-```bash
+# Or build and run manually
 docker build -t swiftlink .
 docker run -p 8000:8000 swiftlink
 ```
