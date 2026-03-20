@@ -1,6 +1,4 @@
 import os
-import sys
-import json
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
@@ -23,7 +21,7 @@ BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
 
 @app.get("/health", response_model=HealthResponse)
 def health_check():
-        return {"status": "ok"}
+    return {"status": "ok"}
 
 
 @app.post("/shorten", response_model=URLResponse)
