@@ -24,6 +24,15 @@ def health_check():
     return {"status": "ok"}
 
 
+@app.get("/info")
+def get_info():
+    return {
+        "project": "SwiftLink",
+        "version": "1.0.0",
+        "description": "SwiftLink URL Shortener API",
+    }
+
+
 @app.post("/shorten", response_model=URLResponse)
 def shorten_url(request: URLRequest, db: Session = Depends(get_db)):
     link = create_short_link(db, str(request.url))

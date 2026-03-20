@@ -37,6 +37,15 @@ def test_health_check():
     assert response.json() == {"status": "ok"}
 
 
+def test_info_endpoint():
+    response = client.get("/info")
+    assert response.status_code == 200
+    data = response.json()
+    assert "project" in data
+    assert data["project"] == "SwiftLink"
+    assert data["version"] == "1.0.0"
+
+
 def test_shorten_url():
     response = client.post("/shorten", json={"url": "https://example.com"})
     assert response.status_code == 200
