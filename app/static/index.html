@@ -218,6 +218,24 @@
             color: #ccc;
         }
 
+        .live-badge {
+            display: none;
+            font-size: 10px;
+            letter-spacing: 0.5px;
+            color: #e74c3c;
+            animation: pulse 1.5s ease-in-out infinite;
+            margin-left: 4px;
+        }
+
+        .live-badge.active {
+            display: inline;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
         .original-url {
             font-size: 13px;
             color: #666;
@@ -266,7 +284,7 @@
             <div class="original-url" id="originalUrl"></div>
             <div class="stats">
                 <div class="stat-item">
-                    <span class="label">Clicks</span>
+                    <span class="label">Clicks <span class="live-badge" id="liveBadge">&#x1f534; Live</span></span>
                     <span class="value" id="clickCount">0</span>
                 </div>
                 <div class="stat-item">
@@ -289,11 +307,34 @@
         const createdAtEl = document.getElementById('createdAt');
         const copyBtn = document.getElementById('copyBtn');
 
+        const liveBadge = document.getElementById('liveBadge');
+
         let currentShortCode = null;
+        let pollTimer = null;
 
         urlInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') shortenUrl();
         });
+
+        function stopPolling() {
+            if (pollTimer) {
+                clearInterval(pollTimer);
+                pollTimer = null;
+            }
+            liveBadge.classList.remove('active');
+        }
+
+        function startPolling(code) {
+            stopPolling();
+            liveBadge.classList.add('active');
+            pollTimer = setInterval(async () => {
+                if (currentShortCode !== code) {
+                    stopPolling();
+                    return;
+                }
+                await fetchStats(code);
+            }, 5000);
+        }
 
         function showError(msg) {
             errorEl.textContent = msg;
@@ -328,6 +369,7 @@
                 return;
             }
 
+            stopPolling();
             setLoading(true);
 
             try {
@@ -357,6 +399,7 @@
                 resultEl.style.display = 'block';
                 copyBtn.textContent = 'Copy';
                 copyBtn.classList.remove('copied');
+                startPolling(data.short_code);
             } catch (err) {
                 showError('Could not connect to the server. Please try again.');
             } finally {
