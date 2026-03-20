@@ -107,3 +107,7 @@ docker run -p 8000:8000 swiftlink
 - **ruff** - Linting
 - **Docker** - Containerization
 - **GitHub Actions** - CI/CD
+
+## License
+
+This project is open source.

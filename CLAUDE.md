@@ -27,6 +27,8 @@ tests/
 - `StaticFiles` is mounted at `/static` after all route definitions
 - Frontend uses `window.location.origin` as API base (no hardcoded URLs)
 - Short codes are 6 alphanumeric characters
+- Frontend auto-detects SwiftLink short URLs in the input and switches to lookup mode
+- Live click count polling every 5 seconds when a result is displayed
 
 ## Commands
 
