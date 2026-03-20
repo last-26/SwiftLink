@@ -1,7 +1,10 @@
 import os
 
+from pathlib import Path
+
 from fastapi import Depends, FastAPI, HTTPException
-from fastapi.responses import RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 
 from app.crud import create_short_link, get_link_by_code, increment_click_count
@@ -17,6 +20,7 @@ app = FastAPI(
 )
 
 BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
+STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 
 @app.get("/health", response_model=HealthResponse)
@@ -56,6 +60,11 @@ def get_stats(code: str, db: Session = Depends(get_db)):
     )
 
 
+@app.get("/", include_in_schema=False)
+def root():
+    return FileResponse(STATIC_DIR / "index.html")
+
+
 @app.get("/{code}")
 def redirect_to_url(code: str, db: Session = Depends(get_db)):
     link = get_link_by_code(db, code)
@@ -63,3 +72,6 @@ def redirect_to_url(code: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Short link not found")
     increment_click_count(db, link)
     return RedirectResponse(url=link.original_url, status_code=307)
+
+
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
